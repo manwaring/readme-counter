@@ -1,0 +1,86 @@
+service:
+  name: readme-counter
+
+plugins:
+  - serverless-webpack
+  - serverless-plugin-iam-checker
+  - serverless-prune-versions
+  - serverless-plugin-test-helper
+  - serverless-cloudformation-resource-counter
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, env:STAGE, env:USER}
+  logRetentionInDays: 14
+  httpApi:
+    cors: true
+    payload: "2.0"
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    LAMDBA_WRAPPER_LOG: true
+    VISITS_TABLE: !Ref VisitsTable
+    VISITS_TOPIC: !Ref VisitsTopic
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+      Resource:
+        - !GetAtt VisitsTable.Arn
+    - Effect: Allow
+      Action:
+        - sns:Publish
+      Resource:
+        - !Ref VisitsTopic
+
+custom:
+  topic: ${self:service.name}-visits-${self:provider.stage}
+  # Serverless plugin configurations
+  # https://github.com/manwaring/serverless-prune-versions
+  prune:
+    automatic: true
+    number: 2
+  # https://github.com/drexler/serverless-cloudformation-resource-counter
+  warningThreshold: 100
+  # https://github.com/serverless-heaven/serverless-webpack
+  webpack:
+    includeModules: true
+    excludeFiles: src/**/*.test.[t|j]s
+
+functions:
+  get-readme-badge:
+    handler: src/get-badge.handler
+    events:
+      - httpApi: GET /v1/readme-badges/{organization}/{repository}
+
+  record-visit:
+    handler: src/record-visit.handler
+    events:
+      - sns:
+          arn: !Ref VisitsTopic
+          topicName: ${self:custom.topic}
+
+resources:
+  Resources:
+    VisitsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.topic}
+
+    VisitsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST

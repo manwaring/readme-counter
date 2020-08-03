@@ -1,0 +1,35 @@
+{
+  "name": "readme-counter",
+  "version": "1.0.0",
+  "description": "Serverless webpack example using Typescript",
+  "main": "handler.js",
+  "scripts": {
+    "deploy": "sls deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@manwaring/lambda-wrapper": "^3.7.0",
+    "dynamodb-toolbox": "^0.2.0-beta.1",
+    "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.59",
+    "@types/node": "^14.0.27",
+    "@types/serverless": "^1.72.5",
+    "aws-sdk": "^2.725.0",
+    "fork-ts-checker-webpack-plugin": "^5.0.14",
+    "serverless": "^1.78.0",
+    "serverless-cloudformation-resource-counter": "^1.0.3",
+    "serverless-plugin-iam-checker": "^1.0.5",
+    "serverless-plugin-test-helper": "^2.4.2",
+    "serverless-prune-versions": "^0.1.14",
+    "serverless-webpack": "^5.3.3",
+    "ts-loader": "^8.0.2",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7",
+    "webpack": "^4.44.1",
+    "webpack-node-externals": "^2.5.0"
+  },
+  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "license": "MIT"
+}
