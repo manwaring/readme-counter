@@ -12,6 +12,8 @@ export const handler = httpApi(
       await recordVisit(organization, repository, event);
       const res = await RepoCounter.get({ organization, repository });
       const badge = generateBadge(res.Item.count);
+      // TODO add header Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+      // TODO set content type to 'image/svg+xml'
       return success(badge);
     } catch (err) {
       return error(err);
@@ -19,6 +21,8 @@ export const handler = httpApi(
   }
 );
 
+// https://www.rapidtables.com/web/tools/svg-viewer-editor.html
+// https://www.browserling.com/tools/text-replace
 function generateBadge(count: number): string {
   const label = "Visit count";
   const countLength = count.toString().length;
