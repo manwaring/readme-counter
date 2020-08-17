@@ -1,4 +1,5 @@
 import { Entity } from "dynamodb-toolbox";
+import { fetch } from "node-fetch";
 import { VisitsTable } from "./visits-table";
 import { Visit } from "./repo-visit";
 
@@ -19,6 +20,11 @@ export function updateCounter(visit: Visit): Promise<any> {
   const { owner, vcs, repository } = visit;
   const counter = { owner, vcs, repository, count: { $add: 1 }, };
   return RepoCounter.update(counter);
+}
+
+export async function getCount(vcs: string, owner: string, repository: string): Promise<number> {
+  const res = await RepoCounter.get({ vcs, owner, repository });
+  return res?.Item?.count;
 }
 
 export async function getCounterBadge(vcs: string, owner: string, repository: string): Promise<string> {

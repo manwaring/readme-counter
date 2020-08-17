@@ -9,6 +9,7 @@
   "dependencies": {
     "@manwaring/lambda-wrapper": "^4.0.2",
     "dynamodb-toolbox": "^0.2.0-beta.1",
+    "node-fetch": "^2.6.0",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {

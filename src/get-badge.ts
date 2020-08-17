@@ -1,14 +1,16 @@
 import "source-map-support/register";
+import * as fetch  from "node-fetch";
 import { httpApi } from "@manwaring/lambda-wrapper";
 import { SNS } from "aws-sdk";
-import { getCounterBadge } from "./access";
+import { getCount } from "./access";
 
 const sns = new SNS({ apiVersion: "2010-03-31" });
 
 export const handler = httpApi(async ({ event, success, error }) => {
     try {
       const { vcs, owner, repository } = event.pathParameters;
-      const [ badge ] = await Promise.all([getCounterBadge(vcs, owner, repository), recordVisit(vcs, owner, repository, event)]);
+      const [count] = await Promise.all([getCount(vcs, owner, repository), recordVisit(vcs, owner, repository, event)]);
+      const badge = await getBadge(count, event.rawQueryString);
       const headers = {
         'Cache-Control': 'max-age=0, no-cache, no-store, must-revalidate',
         'Content-Type': 'image/svg+xml'
@@ -19,6 +21,15 @@ export const handler = httpApi(async ({ event, success, error }) => {
     }
   }
 );
+
+async function getBadge(count: number = 0, queryString: String): Promise<string> {
+  count++; // this current visit likely hasn't been captured yet
+  const label = 'Readme%20visits';
+  const color = 'brightgreen';
+  const url = `https://img.shields.io/badge/${label}-${count}-${color}?${queryString}`;
+  const res = await fetch(url);
+  return res.text();
+}
 
 function recordVisit(vcs: string, owner: string, repository: string, event: any): Promise<any> {
   const { requestContext: { http: { sourceIp }, timeEpoch } } = event;
