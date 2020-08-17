@@ -1,10 +1,10 @@
 {
   "name": "readme-counter",
+  "description": "A serverless README visit counter badge",
   "version": "1.0.0",
-  "description": "Serverless webpack example using Typescript",
   "scripts": {
     "deploy": "dotenv -- sls deploy",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "dependencies": {
     "@manwaring/lambda-wrapper": "^4.0.2",
@@ -31,6 +31,6 @@
     "webpack": "^4.44.1",
     "webpack-node-externals": "^2.5.1"
   },
-  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "author": "Made with ♥ by Phillip Manwaring",
   "license": "MIT"
 }
