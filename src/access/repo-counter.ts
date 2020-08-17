@@ -1,5 +1,4 @@
 import { Entity } from "dynamodb-toolbox";
-import { fetch } from "node-fetch";
 import { VisitsTable } from "./visits-table";
 import { Visit } from "./repo-visit";
 

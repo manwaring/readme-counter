@@ -32,11 +32,14 @@ async function getBadge(count: number = 0, queryString: String): Promise<string>
 }
 
 function recordVisit(vcs: string, owner: string, repository: string, event: any): Promise<any> {
-  const { requestContext: { http: { sourceIp }, timeEpoch } } = event;
-  const visit = { vcs, owner, repository, ip: sourceIp, timestamp: timeEpoch, };
-  const params = {
-    Message: JSON.stringify(visit),
-    TopicArn: process.env.VISITS_TOPIC,
-  };
-  return sns.publish(params).promise();
+  const { anonymous } = event.queryStringParameters;
+  if (!anonymous) {
+    const { requestContext: { http: { sourceIp }, timeEpoch } } = event;
+    const visit = { vcs, owner, repository, ip: sourceIp, timestamp: timeEpoch, };
+    const params = {
+      Message: JSON.stringify(visit),
+      TopicArn: process.env.VISITS_TOPIC,
+    };
+    return sns.publish(params).promise();
+  }
 }
