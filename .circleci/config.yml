@@ -42,6 +42,7 @@ workflows:
       - deploy:
           name: deploy-prod
           context: aws-sandbox
+          stage: prod
           requires: [node/test]
           filters: &only-main
             branches:
