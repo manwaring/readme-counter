@@ -1,0 +1,48 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.0.0
+
+jobs:
+  deploy:
+    executor:
+      name: node/default
+      tag: lts
+    parameters:
+      stage:
+        description: Stage to deploy to
+        type: string
+        default: ''
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Deploy service
+          command: |
+            STAGE=<< parameters.stage >>
+            [[ ! -z "$STAGE" ]] || STAGE=${CIRCLE_USERNAME%%/*}
+            npm run deploy -- --stage $STAGE
+
+workflows:
+  version: 2
+
+  test-and-deploy:
+    jobs:
+      - node/test:
+          version: lts
+      
+      - deploy:
+          name: deploy-branch
+          context: aws-sandbox
+          requires: [node/test]
+          filters: &only-branches
+            branches:
+              ignore: main
+
+      - deploy:
+          name: deploy-prod
+          context: aws-sandbox
+          requires: [node/test]
+          filters: &only-main
+            branches:
+              only: main

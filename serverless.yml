@@ -7,6 +7,7 @@ plugins:
   - serverless-prune-versions
   - serverless-plugin-test-helper
   - serverless-cloudformation-resource-counter
+  - serverless-plugin-thundra
 
 provider:
   name: aws
@@ -18,9 +19,10 @@ provider:
     payload: "2.0"
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    LAMDBA_WRAPPER_LOG: true
+    LAMBDA_WRAPPER_LOG: true
     VISITS_TABLE: !Ref VisitsTable
     VISITS_TOPIC: !Ref VisitsTopic
+    thundra_apiKey: ${opt:thundra, env:THUNDRA_TOKEN}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -54,7 +56,7 @@ functions:
   get-readme-badge:
     handler: src/get-badge.handler
     events:
-      - httpApi: GET /v1/readme-badges/{organization}/{repository}
+      - httpApi: GET /v1/readme/visits/{vcs}/{owner}/{repository}
 
   record-visit:
     handler: src/record-visit.handler

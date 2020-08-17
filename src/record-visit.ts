@@ -1,18 +1,11 @@
 import "source-map-support/register";
-import { sns, SnsSignature } from "@manwaring/lambda-wrapper";
-import { RepoVisit } from "./access/repo-visit";
-import { RepoCounter } from "./access/repo-counter";
+import { sns } from "@manwaring/lambda-wrapper";
+import { Visit, recordVisit, updateCounter } from "./access";
 
-export const handler = sns(async ({ event, success, error }: SnsSignature) => {
+export const handler = sns(async ({ event, success, error }) => {
   try {
-    const visit = JSON.parse(event.Records[0].Sns.Message);
-    await RepoVisit.put(visit);
-    const counter = {
-      organization: visit.organization,
-      repository: visit.repository,
-      count: { $add: 1 },
-    };
-    await RepoCounter.update(counter);
+    const visit: Visit = JSON.parse(event.Records[0].Sns.Message);
+    await Promise.all([recordVisit(visit), updateCounter(visit)]);
     return success();
   } catch (err) {
     return error(err);

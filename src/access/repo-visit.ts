@@ -1,10 +1,12 @@
 import { Entity } from "dynamodb-toolbox";
 import { VisitsTable } from "./visits-table";
 
-export const RepoVisit = new Entity({
+const RepoVisit = new Entity({
   name: "visit",
   attributes: {
-    organization: { partitionKey: true },
+    pk: { partitionKey: true, hidden: true, delimiter: "/" },
+    vcs: ["pk", 0],
+    owner: ["pk", 1],
     sk: { sortKey: true, hidden: true },
     repository: ["sk", 0],
     ip: ["sk", 1],
@@ -12,3 +14,15 @@ export const RepoVisit = new Entity({
   },
   table: VisitsTable,
 });
+
+export function recordVisit(visit: Visit): Promise<any> {
+  return RepoVisit.put(visit);
+}
+
+export interface Visit {
+  vcs: string;
+  owner: string;
+  repository: string;
+  ip: string;
+  timestamp: string
+};
