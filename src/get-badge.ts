@@ -11,8 +11,7 @@ export const handler = httpApi(async ({ event, success, error }) => {
       const { vcs, owner, repository } = event.pathParameters;
       let [count] = await Promise.all([getCount(vcs, owner, repository), recordVisit(vcs, owner, repository, event)]);
       count++;
-      const link = `https://${vcs}.com/${owner}/${repository}`;
-      const badge = await getBadgeFromShieldsIO(count, link, event.rawQueryString);
+      const badge = await getBadgeFromShieldsIO(count, event.rawQueryString);
       const headers = {
         'Cache-Control': 'max-age=0, no-cache, no-store, must-revalidate',
         'Content-Type': 'image/svg+xml'
