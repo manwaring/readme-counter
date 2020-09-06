@@ -1,7 +1,7 @@
 import "source-map-support/register";
 import { httpApi } from "@manwaring/lambda-wrapper";
 import { SNS } from "aws-sdk";
-import { getCount } from "./access";
+import { getCount, Visit } from "./access";
 import { getBadgeFromShieldsIO } from './badges';
 
 const sns = new SNS({ apiVersion: "2010-03-31" });
@@ -23,15 +23,28 @@ export const handler = httpApi(async ({ event, success, error }) => {
   }
 );
 
-function recordVisit(vcs: string, owner: string, repository: string, event: any): Promise<any> {
+function recordVisit(vcs: string, owner: string, repository: string, event): Promise<any> {
   const { anonymous } = event.queryStringParameters;
   if (!anonymous) {
     const { requestContext: { http: { sourceIp }, timeEpoch } } = event;
-    const visit = { vcs, owner, repository, ip: sourceIp, timestamp: timeEpoch, };
+    const source = getVisitSource(event);
+    const visit: Visit = { vcs, owner, repository, ip: sourceIp, timestamp: timeEpoch, source };
     const params = {
       Message: JSON.stringify(visit),
       TopicArn: process.env.VISITS_TOPIC,
     };
     return sns.publish(params).promise();
   }
+}
+
+function getVisitSource(event): string {
+  return isNpmVisitSource(event) ? 'npm' : isGitHubVisitSource(event) ? 'GitHub' : undefined;
+}
+
+function isNpmVisitSource(event): boolean {
+  return event?.headers['referer']?.toUpperCase()?.indexOf('NPMJS.COM') > -1;
+}
+
+function isGitHubVisitSource(event): boolean {
+  return event?.headers['user-agent']?.toUpperCase()?.indexOf('GITHUB') > -1;
 }
