@@ -11,6 +11,7 @@ const RepoVisit = new Entity({
     repository: ["sk", 0],
     ip: ["sk", 1],
     timestamp: ["sk", 2],
+    ipLookup: 'map'
   },
   table: VisitsTable,
 });
@@ -24,5 +25,8 @@ export interface Visit {
   owner: string;
   repository: string;
   ip: string;
-  timestamp: string
+  ipLookup: {
+    org: string;
+  }
+  timestamp: string;
 };

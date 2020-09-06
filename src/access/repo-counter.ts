@@ -23,7 +23,7 @@ export function updateCounter(visit: Visit): Promise<any> {
 
 export async function getCount(vcs: string, owner: string, repository: string): Promise<number> {
   const res = await RepoCounter.get({ vcs, owner, repository });
-  return res?.Item?.count;
+  return isNaN(res?.Item?.count) ? 0 : res?.Item?.count;
 }
 
 export async function getCounterBadge(vcs: string, owner: string, repository: string): Promise<string> {
