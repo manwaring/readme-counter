@@ -1,13 +1,17 @@
 import "source-map-support/register";
-import { sns } from "@manwaring/lambda-wrapper";
+import { wrapper } from "@manwaring/lambda-wrapper";
 import fetch from 'node-fetch';
-import { Visit, recordVisit, updateCounter } from "./access";
+import { Visit, recordVisit, getVisits } from "./access";
 
-export const handler = sns(async ({ event, success, error }) => {
+export const handler = wrapper(async ({ event, success, error }) => {
   try {
-    const rawVisit: Visit = JSON.parse(event.Records[0].Sns.Message);
-    const visit = await getEnrichedVisit(rawVisit);
-    await Promise.all([recordVisit(visit), updateCounter(visit)]);
+    const visits = await getVisits();
+    for (const rawVisit of visits) {
+        if (!rawVisit.ipLookup || !rawVisit.ipLookup.city) {
+            const visit = await getEnrichedVisit(rawVisit);
+            await recordVisit(visit);
+        }
+    }
     return success();
   } catch (err) {
     return error(err);

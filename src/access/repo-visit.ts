@@ -16,6 +16,15 @@ const RepoVisit = new Entity({
   table: VisitsTable,
 });
 
+export async function getVisits(): Promise<Visit[]> {
+  const res = await RepoVisit.scan({
+    entity: 'visit',
+    filters: [
+      { attr: '_et', eq: 'visit'}
+    ]});
+  return res.Items;
+}
+
 export function recordVisit(visit: Visit): Promise<any> {
   return RepoVisit.put(visit);
 }
@@ -27,6 +36,8 @@ export interface Visit {
   ip: string;
   ipLookup: {
     org: string;
+    city: string;
+    regionName: string;
   }
   timestamp: string;
 };
